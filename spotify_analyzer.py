@@ -1,11 +1,14 @@
+import os
+from dotenv import load_dotenv
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from collections import Counter
 
-CLIENT_ID = "7488fa227e7546adb880800d3d7efea9"
-CLIENT_SECRET = "cc97ec0a1c3e452382ea8cc9ffa9457b"
-REDIRECT_URI = "http://127.0.0.1:8888/callback/"
+load_dotenv("client.env")
 
+CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
+REDIRECT_URI = os.getenv("SPOTIPY_REDIRECT_URI", "http://127.0.0.1:8888/callback/")
 SCOPE = "playlist-read-private user-library-read user-top-read"
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
@@ -30,6 +33,10 @@ def analyze_playlist(playlist_id):
             popularity_scores.append(track['popularity'])
             artists.extend([artist['name'] for artist in track['artists']])
 
+    if not song_lengths:
+        print("No tracks found in playlist.")
+        return
+
     avg_length = sum(song_lengths) / len(song_lengths)
     avg_popularity = sum(popularity_scores) / len(popularity_scores)
     most_common_artist = Counter(artists).most_common(1)[0]
@@ -39,7 +46,7 @@ def analyze_playlist(playlist_id):
     print(f"Average Popularity Score: {round(avg_popularity,1)} / 100")
     print(f"Most Common Artist: {most_common_artist[0]} ({most_common_artist[1]} songs)")
 
-playlist_url = input("Enter a Spotify playlist URL: ")
-playlist_id = playlist_url.split("/")[-1].split("?")[0]
-
-analyze_playlist(playlist_id)
+if __name__ == "__main__":
+    playlist_url = input("Enter a Spotify playlist URL: ")
+    playlist_id = playlist_url.split("/")[-1].split("?")[0]
+    analyze_playlist(playlist_id)

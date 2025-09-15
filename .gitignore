@@ -1,0 +1,15 @@
+# virtual env
+.venv/
+
+# env & cache
+.env
+.cache
+
+# IDE
+.idea/
+__pycache__/
+
+# OS
+.DS_Store
+.env
+.cache
